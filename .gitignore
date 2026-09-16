@@ -1,0 +1,16 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Android
+.gradle/
+build/
+local.properties
+
+# IDE
+.idea/
+.vscode/
