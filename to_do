@@ -1,0 +1,377 @@
+VidTalk: clean-slate plan
+
+We'll build it in small stages, and I will not jump ahead or dump the whole application on you.
+
+Target architecture
+                    VIDTALK
+                       │
+          ┌────────────┴────────────┐
+          │                         │
+   Android App                 FastAPI Backend
+   Kotlin                      Python
+   Jetpack Compose             │
+   MVVM                        │
+   Retrofit                    │
+   Media3                      │
+   CameraX                     │
+          │                     │
+          └──────────┬──────────┘
+                     │
+                  REST API
+                     │
+              ┌──────┴──────┐
+              │             │
+         PostgreSQL      Cloudinary
+         Database        Video Storage
+Phase 1: Create the project
+
+We'll create a completely new directory:
+
+VidTalk/
+├── backend/
+├── android/
+└── README.md
+
+No old Flask code.
+No old Expo code.
+No migration headaches.
+
+Phase 2: Build the backend foundation
+
+We'll use:
+
+Python
+FastAPI
+PostgreSQL
+SQLAlchemy 2.x
+Alembic
+Pydantic
+
+We'll learn each piece as we use it.
+
+First backend version:
+
+backend/
+└── app/
+    ├── main.py
+    ├── database.py
+    ├── models/
+    ├── schemas/
+    ├── routes/
+    └── services/
+
+We'll start with something tiny:
+
+GET /hello
+
+Then gradually build:
+
+/users
+/videos
+/comments
+/replies
+/reactions
+Phase 3: Database
+
+We'll design the VidTalk database.
+
+Initially:
+
+users
+videos
+comments
+
+Then:
+
+replies
+reactions
+
+For example:
+
+users
+  │
+  ├── videos
+  │
+  └── comments
+          │
+          └── replies
+
+We'll learn:
+
+Primary keys
+Foreign keys
+Relationships
+Constraints
+Indexes
+SQLAlchemy models
+Alembic migrations
+Phase 4: Android application
+
+Create a native Kotlin Android application.
+
+Technology:
+
+Kotlin
+   ↓
+Jetpack Compose
+   ↓
+MVVM
+   ↓
+Repository
+   ↓
+Retrofit
+   ↓
+FastAPI
+
+We'll first make Android communicate with:
+
+GET /hello
+
+Then:
+
+GET /users
+POST /users
+
+So you'll actually see the complete path:
+
+Android
+   ↓
+Retrofit
+   ↓
+HTTP
+   ↓
+FastAPI
+   ↓
+PostgreSQL
+Phase 5: Authentication
+
+We'll add Google authentication.
+
+Android
+   ↓
+Google Sign-In
+   ↓
+FastAPI
+   ↓
+Verify user
+   ↓
+PostgreSQL
+
+Then we'll introduce proper authentication tokens and protected API routes.
+
+Phase 6: Videos
+
+We'll create:
+
+videos
+
+with information such as:
+
+id
+title
+description
+video_url
+thumbnail_url
+user_id
+created_at
+
+Then:
+
+POST /videos
+GET /videos
+GET /videos/{id}
+Phase 7: Video playback
+
+Android will use:
+
+Media3 / ExoPlayer
+
+Flow:
+
+FastAPI
+   ↓
+video URL
+   ↓
+Android
+   ↓
+Media3
+   ↓
+Video playback
+
+At this point we'll have the basic YouTube-like experience.
+
+Phase 8: Text comments
+
+Add:
+
+comments
+
+Users can write comments on videos.
+
+Then:
+
+POST /videos/{id}/comments
+GET  /videos/{id}/comments
+
+Android displays them.
+
+Phase 9: Timestamp comments ⭐
+
+This is the feature that makes VidTalk interesting.
+
+Suppose the video is currently at:
+
+02:35
+
+User writes:
+
+"This part is important."
+
+We store:
+
+timestamp = 155 seconds
+
+Then the Android UI can display a marker:
+
+Video timeline
+
+0 ────────●────────────●────────── 10:00
+          ↑
+        2:35
+
+Tap the marker:
+
+seekTo(155000)
+
+and the video jumps directly to that moment.
+
+Phase 10: Replies
+
+Comments become threaded:
+
+Comment
+ ├── Reply
+ ├── Reply
+ └── Reply
+
+Database relationship:
+
+comments.parent_comment_id
+Phase 11: Video comments
+
+Now the more advanced feature.
+
+User records a short video response:
+
+CameraX
+   ↓
+Record video
+   ↓
+Android
+   ↓
+FastAPI
+   ↓
+Cloudinary
+   ↓
+Video URL
+   ↓
+PostgreSQL
+
+We'll impose the intended duration limit when we implement this feature.
+
+Phase 12: Cloudinary
+
+Instead of putting large video files inside PostgreSQL:
+
+PostgreSQL
+    ❌ video file
+
+we'll use:
+
+Cloudinary
+    ↓
+actual video
+
+PostgreSQL
+    ↓
+video URL
+
+This is an important real-world architecture concept.
+
+Phase 13: Reactions
+
+Add:
+
+👍 Like
+👎 Dislike
+
+with the appropriate database design so one user cannot create conflicting duplicate reactions.
+
+Phase 14: Room / local caching
+
+We'll introduce:
+
+Room
+
+for local Android storage.
+
+Architecture becomes:
+
+             Android
+                │
+             ViewModel
+                │
+           Repository
+           /         \
+       Retrofit      Room
+          │            │
+      FastAPI       Local DB
+
+We'll use it where local caching/offline behavior actually makes sense, rather than adding it just because it's in the tech stack.
+
+Phase 15: UI/UX
+
+Then we'll build the actual screens:
+
+Home
+ │
+ ├── Video feed
+ │
+ └── Video screen
+        │
+        ├── Video player
+        ├── Timeline markers
+        ├── Comments
+        ├── Replies
+        └── Record video comment
+
+Profile
+ │
+ ├── User information
+ └── User's videos
+Phase 16: Security and testing
+
+We'll then improve the backend:
+
+Authentication protection
+Authorization
+Input validation
+Error handling
+Database constraints
+API testing
+Android testing
+Phase 17: Deployment
+
+Finally:
+
+Android
+    ↓ HTTPS
+Cloud FastAPI
+    ↓
+Cloud PostgreSQL
+
+Cloudinary
+    ↑
+Video files
+
+And we'll produce a release Android build.
