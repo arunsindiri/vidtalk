@@ -1,3 +1,4 @@
+from app.schemas import UserCreate, UserResponse
 from fastapi import FastAPI
 from app.database import engine
 from app.models import User
@@ -12,18 +13,18 @@ def hello():
 
 
 
-@app.post("/users")
-def create_user(name: str):
+@app.post("/users", response_model=UserResponse)
+def create_user(user: UserCreate):
     with engine.begin() as connection:
         result = connection.execute(
-            User.__table__.insert().values(name=name)
+            User.__table__.insert().values(name=user.name)
         )
 
         user_id = result.inserted_primary_key[0]
 
     return {
         "id": user_id,
-        "name": name
+        "name": user.name
     }
 
 
