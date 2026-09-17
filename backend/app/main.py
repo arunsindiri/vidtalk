@@ -1,3 +1,4 @@
+from app.services.user_service import create_user
 from app.schemas import UserCreate, UserResponse
 from fastapi import FastAPI
 from app.database import engine
@@ -14,18 +15,9 @@ def hello():
 
 
 @app.post("/users", response_model=UserResponse)
-def create_user(user: UserCreate):
+def create_user_route(user: UserCreate):
     with engine.begin() as connection:
-        result = connection.execute(
-            User.__table__.insert().values(name=user.name)
-        )
-
-        user_id = result.inserted_primary_key[0]
-
-    return {
-        "id": user_id,
-        "name": user.name
-    }
+        return create_user(connection, user.name)
 
 
 @app.get("/users")
