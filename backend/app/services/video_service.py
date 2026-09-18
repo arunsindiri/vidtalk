@@ -53,3 +53,30 @@ def get_video(connection: Connection, video_id: int):
         return None
 
     return dict(video._mapping)
+
+
+def update_video(
+    connection: Connection,
+    video_id: int,
+    title: str,
+    description: str | None,
+    video_url: str,
+):
+    result = connection.execute(
+        Video.__table__
+        .update()
+        .where(Video.id == video_id)
+        .values(
+            title=title,
+            description=description,
+            video_url=video_url,
+        )
+        .returning(Video.__table__)
+    )
+
+    video = result.fetchone()
+
+    if video is None:
+        return None
+
+    return dict(video._mapping)

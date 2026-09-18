@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
 
-from app.services.video_service import create_video, get_videos, get_video
-from app.schemas import VideoCreate, VideoResponse
+from app.services.video_service import create_video, get_videos, get_video, update_video
+from app.schemas import VideoCreate, VideoResponse, VideoUpdate
 from app.database import engine
 
 
@@ -36,3 +36,20 @@ def get_video_route(video_id: int):
         raise HTTPException(status_code=404, detail="Video not found")
 
     return video
+
+
+@router.put("/videos/{video_id}", response_model=VideoResponse)
+def update_video_route(video_id: int, video: VideoUpdate):
+    with engine.begin() as connection:
+        updated_video = update_video(
+            connection,
+            video_id,
+            video.title,
+            video.description,
+            video.video_url
+        )
+
+    if updated_video is None:
+        raise HTTPException(status_code=404, detail="Video not found")
+
+    return updated_video

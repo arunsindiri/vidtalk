@@ -16,3 +16,9 @@ class VideoResponse(BaseModel):
     description: str | None
     video_url: str
     created_at: datetime
+
+
+class VideoUpdate(BaseModel):
+    title: str
+    description: str | None = None
+    video_url: str
