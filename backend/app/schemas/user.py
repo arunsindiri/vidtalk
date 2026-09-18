@@ -7,3 +7,6 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     id: int
     name: str
+
+class UserUpdate(BaseModel):
+    name: str

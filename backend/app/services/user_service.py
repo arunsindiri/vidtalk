@@ -51,3 +51,19 @@ def delete_user(connection: Connection, user_id: int):
     )
 
     return result.rowcount > 0
+
+def update_user(connection: Connection, user_id: int, name: str):
+    result = connection.execute(
+        User.__table__
+        .update()
+        .where(User.id == user_id)
+        .values(name=name)
+    )
+
+    if result.rowcount == 0:
+        return None
+
+    return {
+        "id": user_id,
+        "name": name
+    }
