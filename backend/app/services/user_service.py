@@ -44,3 +44,10 @@ def get_user(connection: Connection, user_id: int):
         "id": user.id,
         "name": user.name
     }
+
+def delete_user(connection: Connection, user_id: int):
+    result = connection.execute(
+        User.__table__.delete().where(User.id == user_id)
+    )
+
+    return result.rowcount > 0

@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.database import engine
 from app.schemas import UserCreate, UserResponse
-from app.services.user_service import create_user, get_users, get_user
+from app.services.user_service import create_user, get_users, get_user, delete_user
 
 
 router = APIRouter()
@@ -27,3 +27,12 @@ def get_user_route(user_id: int):
 
     return user
         
+@router.delete("/users/{user_id}")
+def delete_user_route(user_id: int):
+    with engine.begin() as connection:
+        deleted = delete_user(connection, user_id)
+
+    if not deleted:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {"message": "User deleted successfully"}
