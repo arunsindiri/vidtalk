@@ -14,3 +14,18 @@ def create_user(connection: Connection, name: str):
         "id": user_id,
         "name": name
     }
+
+def get_users(connection: Connection):
+    result = connection.execute(
+        User.__table__.select()
+    )
+
+    users = []
+
+    for user in result:
+        users.append({
+            "id": user.id,
+            "name": user.name
+        })
+
+    return users
