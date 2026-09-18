@@ -29,3 +29,18 @@ def get_users(connection: Connection):
         })
 
     return users
+
+def get_user(connection: Connection, user_id: int):
+    result = connection.execute(
+        User.__table__.select().where(User.id == user_id)
+    )
+
+    user = result.fetchone()
+
+    if user is None:
+        return None
+
+    return {
+        "id": user.id,
+        "name": user.name
+    }
