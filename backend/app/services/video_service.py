@@ -90,3 +90,16 @@ def delete_video(connection: Connection, video_id: int):
     )
 
     return result.rowcount > 0
+
+
+def get_videos_by_user(connection: Connection, user_id: int):
+    result = connection.execute(
+        Video.__table__.select().where(Video.user_id == user_id)
+    )
+
+    videos = []
+
+    for video in result:
+        videos.append(dict(video._mapping))
+
+    return videos
