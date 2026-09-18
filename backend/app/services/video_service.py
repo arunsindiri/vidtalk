@@ -40,3 +40,16 @@ def get_videos(connection: Connection):
         videos.append(dict(video._mapping))
 
     return videos
+
+
+def get_video(connection: Connection, video_id: int):
+    result = connection.execute(
+        Video.__table__.select().where(Video.id == video_id)
+    )
+
+    video = result.fetchone()
+
+    if video is None:
+        return None
+
+    return dict(video._mapping)
