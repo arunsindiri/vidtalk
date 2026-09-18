@@ -80,3 +80,13 @@ def update_video(
         return None
 
     return dict(video._mapping)
+
+
+def delete_video(connection: Connection, video_id: int):
+    result = connection.execute(
+        Video.__table__
+        .delete()
+        .where(Video.id == video_id)
+    )
+
+    return result.rowcount > 0

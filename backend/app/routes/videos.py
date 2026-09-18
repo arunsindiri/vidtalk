@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 
-from app.services.video_service import create_video, get_videos, get_video, update_video
+from app.services.video_service import create_video, get_videos, get_video, update_video, delete_video
 from app.schemas import VideoCreate, VideoResponse, VideoUpdate
 from app.database import engine
 
@@ -53,3 +53,14 @@ def update_video_route(video_id: int, video: VideoUpdate):
         raise HTTPException(status_code=404, detail="Video not found")
 
     return updated_video
+
+
+@router.delete("/videos/{video_id}")
+def delete_video_route(video_id: int):
+    with engine.begin() as connection:
+        deleted = delete_video(connection, video_id)
+
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Video not found")
+
+    return {"message": "Video deleted successfully"}
