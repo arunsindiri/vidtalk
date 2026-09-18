@@ -1,0 +1,42 @@
+from datetime import datetime
+
+from sqlalchemy import Connection
+
+from app.models import Video
+
+
+def create_video(
+    connection: Connection,
+    user_id: int,
+    title: str,
+    description: str | None,
+    video_url: str,
+):
+    result = connection.execute(
+        Video.__table__.insert()
+        .values(
+            user_id=user_id,
+            title=title,
+            description=description,
+            video_url=video_url,
+            created_at=datetime.now(),
+        )
+        .returning(Video.__table__)
+    )
+
+    video = result.fetchone()
+
+    return dict(video._mapping)
+
+
+def get_videos(connection: Connection):
+    result = connection.execute(
+        Video.__table__.select()
+    )
+
+    videos = []
+
+    for video in result:
+        videos.append(dict(video._mapping))
+
+    return videos
