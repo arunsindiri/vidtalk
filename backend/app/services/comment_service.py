@@ -124,3 +124,23 @@ def create_reply(
     reply = result.fetchone()
 
     return dict(reply._mapping)
+
+
+def get_replies(
+    connection: Connection,
+    parent_comment_id: int,
+):
+    result = connection.execute(
+        Comment.__table__
+        .select()
+        .where(
+            Comment.parent_comment_id == parent_comment_id
+        )
+    )
+
+    replies = []
+
+    for reply in result:
+        replies.append(dict(reply._mapping))
+
+    return replies

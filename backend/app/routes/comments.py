@@ -9,6 +9,7 @@ from app.services.comment_service import (
     update_comment,
     delete_comment,
     create_reply,
+    get_replies,
 )
 
 
@@ -96,3 +97,20 @@ def create_reply_route(
         )
 
     return created_reply
+
+
+@router.get(
+    "/comments/{comment_id}/replies",
+    response_model=list[CommentResponse]
+)
+def get_replies_route(comment_id: int):
+    with engine.connect() as connection:
+        parent_comment = get_comment(connection, comment_id)
+
+        if parent_comment is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Comment not found"
+            )
+
+        return get_replies(connection, comment_id)
