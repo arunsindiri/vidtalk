@@ -19,3 +19,8 @@ class CommentResponse(BaseModel):
     timestamp: int | None
     parent_comment_id: int | None
     created_at: datetime
+
+
+class CommentUpdate(BaseModel):
+    text: str
+    timestamp: int | None = None
