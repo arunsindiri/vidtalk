@@ -7,6 +7,7 @@ from app.services.comment_service import (
     get_comments_by_video,
     get_comment,
     update_comment,
+    delete_comment,
 )
 
 
@@ -57,3 +58,14 @@ def update_comment_route(comment_id: int, comment: CommentUpdate):
         raise HTTPException(status_code=404, detail="Comment not found")
 
     return updated_comment
+
+
+@router.delete("/comments/{comment_id}")
+def delete_comment_route(comment_id: int):
+    with engine.begin() as connection:
+        deleted = delete_comment(connection, comment_id)
+
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    return {"message": "Comment deleted successfully"}

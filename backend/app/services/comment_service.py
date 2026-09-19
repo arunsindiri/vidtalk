@@ -84,3 +84,13 @@ def update_comment(
         return None
 
     return dict(comment._mapping)
+
+
+def delete_comment(connection: Connection, comment_id: int):
+    result = connection.execute(
+        Comment.__table__
+        .delete()
+        .where(Comment.id == comment_id)
+    )
+
+    return result.rowcount > 0
