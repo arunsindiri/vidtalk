@@ -29,3 +29,18 @@ def create_comment(
     comment = result.fetchone()
 
     return dict(comment._mapping)
+
+
+def get_comments_by_video(connection: Connection, video_id: int):
+    result = connection.execute(
+        Comment.__table__
+        .select()
+        .where(Comment.video_id == video_id)
+    )
+
+    comments = []
+
+    for comment in result:
+        comments.append(dict(comment._mapping))
+
+    return comments
