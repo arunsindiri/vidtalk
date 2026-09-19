@@ -10,4 +10,5 @@ class Video(Base):
     title = Column(String, nullable=False)
     description = Column(String, nullable=True)
     video_url = Column(String, nullable=False)
+    duration = Column(Integer, nullable=False)
     created_at = Column(DateTime, nullable=False)

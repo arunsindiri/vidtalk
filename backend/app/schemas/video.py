@@ -7,6 +7,7 @@ class VideoCreate(BaseModel):
     title: str
     description: str | None = None
     video_url: str
+    duration: int
 
 
 class VideoResponse(BaseModel):
@@ -15,10 +16,13 @@ class VideoResponse(BaseModel):
     title: str
     description: str | None
     video_url: str
+    duration: int
     created_at: datetime
-
+    
 
 class VideoUpdate(BaseModel):
     title: str
     description: str | None = None
     video_url: str
+    duration: int
+

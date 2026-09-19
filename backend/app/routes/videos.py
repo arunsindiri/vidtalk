@@ -17,7 +17,8 @@ def create_video_route(video: VideoCreate):
             video.user_id,
             video.title,
             video.description,
-            video.video_url
+            video.video_url,
+            video.duration
         )
 
 
@@ -46,7 +47,8 @@ def update_video_route(video_id: int, video: VideoUpdate):
             video_id,
             video.title,
             video.description,
-            video.video_url
+            video.video_url,
+            video.duration
         )
 
     if updated_video is None:

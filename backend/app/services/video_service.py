@@ -11,6 +11,7 @@ def create_video(
     title: str,
     description: str | None,
     video_url: str,
+    duration: int,
 ):
     result = connection.execute(
         Video.__table__.insert()
@@ -19,6 +20,7 @@ def create_video(
             title=title,
             description=description,
             video_url=video_url,
+            duration=duration,
             created_at=datetime.now(),
         )
         .returning(Video.__table__)
@@ -61,6 +63,7 @@ def update_video(
     title: str,
     description: str | None,
     video_url: str,
+    duration: int,
 ):
     result = connection.execute(
         Video.__table__
@@ -70,6 +73,7 @@ def update_video(
             title=title,
             description=description,
             video_url=video_url,
+            duration=duration,
         )
         .returning(Video.__table__)
     )
