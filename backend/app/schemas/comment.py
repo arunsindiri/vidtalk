@@ -24,3 +24,9 @@ class CommentResponse(BaseModel):
 class CommentUpdate(BaseModel):
     text: str
     timestamp: int | None = None
+
+
+class ReplyCreate(BaseModel):
+    user_id: int
+    text: str
+    timestamp: int | None = None

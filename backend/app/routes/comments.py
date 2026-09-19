@@ -1,13 +1,14 @@
 from fastapi import APIRouter, HTTPException
 
 from app.database import engine
-from app.schemas import CommentCreate, CommentResponse, CommentUpdate
+from app.schemas import CommentCreate, CommentResponse, CommentUpdate, ReplyCreate
 from app.services.comment_service import (
     create_comment,
     get_comments_by_video,
     get_comment,
     update_comment,
     delete_comment,
+    create_reply,
 )
 
 
@@ -69,3 +70,29 @@ def delete_comment_route(comment_id: int):
         raise HTTPException(status_code=404, detail="Comment not found")
 
     return {"message": "Comment deleted successfully"}
+
+
+@router.post(
+    "/comments/{comment_id}/replies",
+    response_model=CommentResponse
+)
+def create_reply_route(
+    comment_id: int,
+    reply: ReplyCreate
+):
+    with engine.begin() as connection:
+        created_reply = create_reply(
+            connection,
+            reply.user_id,
+            comment_id,
+            reply.text,
+            reply.timestamp
+        )
+
+    if created_reply is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Parent comment not found"
+        )
+
+    return created_reply
