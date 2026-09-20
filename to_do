@@ -375,3 +375,24 @@ Cloudinary
 Video files
 
 And we'll produce a release Android build.
+
+
+20-29-2026: 
+
+Comments
+├── CRUD
+├── User validation
+├── Video validation
+├── Timestamp validation
+├── Pagination
+├── Pagination constraints
+├── Deterministic ordering
+└── Text validation
+
+Replies
+├── Create
+├── Retrieve
+├── User validation
+├── Parent validation
+├── Timestamp validation
+└── Nested replies

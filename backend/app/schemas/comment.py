@@ -35,5 +35,12 @@ class CommentUpdate(BaseModel):
 
 class ReplyCreate(BaseModel):
     user_id: int
-    text: str
+    text: str = Field(min_length=1)
     timestamp: int | None = None
+
+    @field_validator("text")
+    @classmethod
+    def validate_text(cls, value: str):
+        if not value.strip():
+            raise ValueError("Reply text cannot be empty")
+        return value
