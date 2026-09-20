@@ -1,7 +1,16 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from app.database import engine
-from app.schemas import CommentCreate, CommentResponse, CommentUpdate, CommentDelete, CommentTreeResponse, ReplyCreate
+from app.schemas import (
+    CommentCreate,
+    CommentResponse,
+    CommentUpdate,
+    CommentDelete,
+    CommentTreeResponse,
+    ReplyCreate,
+    CommentWithReactionResponse,
+    CommentTreeWithReactionResponse,
+)
 from app.services.comment_service import (
     create_comment,
     get_comments_by_video,
@@ -20,6 +29,7 @@ from app.services.comment_reaction_service import (
     get_reaction_count,
     has_user_reacted,
     delete_reaction,
+    add_reaction_data_to_tree,
 )
 
 
@@ -47,19 +57,34 @@ def create_comment_route(comment: CommentCreate):
     return created_comment
 
 
-@router.get("/videos/{video_id}/comments", response_model=list[CommentResponse])
+@router.get("/videos/{video_id}/comments", response_model=list[CommentWithReactionResponse])
 def get_comments_by_video_route(
     video_id: int,
+    user_id: int,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
 ):
     with engine.connect() as connection:
-        return get_comments_by_video(
+        comments = get_comments_by_video(
             connection,
             video_id,
             skip,
             limit
         )
+
+        for comment in comments:
+            comment["reaction_count"] = get_reaction_count(
+                connection,
+                comment["id"]
+            )
+
+            comment["has_reacted"] = has_user_reacted(
+                connection,
+                user_id,
+                comment["id"]
+            )
+
+    return comments
 
 
 @router.get("/comments/{comment_id}", response_model=CommentResponse)
@@ -177,10 +202,11 @@ def get_replies_route(comment_id: int):
 
 @router.get(
     "/videos/{video_id}/comments/tree",
-    response_model=list[CommentTreeResponse]
+    response_model=list[CommentTreeWithReactionResponse]
 )
-def get_comments_tree_route(video_id: int):
+def get_comments_tree_route(video_id: int, user_id: int):
     with engine.connect() as connection:
+    
         if not video_exists(connection, video_id):
             raise HTTPException(
                 status_code=404,
@@ -192,7 +218,15 @@ def get_comments_tree_route(video_id: int):
             video_id
         )
 
-    return build_comment_tree(comments)
+        tree = build_comment_tree(comments)
+    
+        tree = add_reaction_data_to_tree(
+            connection,
+            tree,
+            user_id
+        )
+
+        return tree
 
 
 @router.post(

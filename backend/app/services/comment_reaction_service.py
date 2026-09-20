@@ -98,3 +98,29 @@ def delete_reaction(
         return None
 
     return True
+
+
+def add_reaction_data_to_tree(
+    connection: Connection,
+    tree,
+    user_id: int,
+):
+    for comment in tree:
+        comment["reaction_count"] = get_reaction_count(
+            connection,
+            comment["id"]
+        )
+
+        comment["has_reacted"] = has_user_reacted(
+            connection,
+            user_id,
+            comment["id"]
+        )
+
+        add_reaction_data_to_tree(
+            connection,
+            comment["replies"],
+            user_id
+        )
+
+    return tree
