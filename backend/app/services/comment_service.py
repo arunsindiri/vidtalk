@@ -55,11 +55,18 @@ def create_comment(
     return dict(comment._mapping)
 
 
-def get_comments_by_video(connection: Connection, video_id: int):
+def get_comments_by_video(
+    connection: Connection,
+    video_id: int,
+    skip: int,
+    limit: int,
+):
     result = connection.execute(
         Comment.__table__
         .select()
         .where(Comment.video_id == video_id)
+        .offset(skip)
+        .limit(limit)
     )
 
     comments = []

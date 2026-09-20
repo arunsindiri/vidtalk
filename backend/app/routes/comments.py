@@ -38,9 +38,18 @@ def create_comment_route(comment: CommentCreate):
 
 
 @router.get("/videos/{video_id}/comments", response_model=list[CommentResponse])
-def get_comments_by_video_route(video_id: int):
+def get_comments_by_video_route(
+    video_id: int,
+    skip: int,
+    limit: int,
+):
     with engine.connect() as connection:
-        return get_comments_by_video(connection, video_id)
+        return get_comments_by_video(
+            connection,
+            video_id,
+            skip,
+            limit
+        )
 
 
 @router.get("/comments/{comment_id}", response_model=CommentResponse)
@@ -100,7 +109,7 @@ def create_reply_route(
 
     if created_reply is None:
         raise HTTPException(
-            status_code=404,
+            status_code=400,
             detail="Invalid parent comment or timestamp"
         )
 
