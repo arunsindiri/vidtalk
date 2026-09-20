@@ -417,3 +417,23 @@ We have covered:
 ✅ Reply text validation
 ✅ Reply timestamp validation
 ✅ Reply user validation
+
+
+Comments
+├── Create
+├── Read
+├── Update
+├── Delete
+├── Pagination
+├── Timestamp comments
+├── Text validation
+├── User validation
+├── Ownership protection
+│
+└── Replies
+    ├── Create
+    ├── Read
+    ├── Nested replies
+    ├── Timestamp validation
+    ├── Text validation
+    └── Ownership protection

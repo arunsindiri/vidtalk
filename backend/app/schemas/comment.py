@@ -56,3 +56,7 @@ class ReplyCreate(BaseModel):
         if not value.strip():
             raise ValueError("Reply text cannot be empty")
         return value
+
+
+class CommentTreeResponse(CommentResponse):
+    replies: list["CommentTreeResponse"] = []

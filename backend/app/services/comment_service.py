@@ -232,3 +232,59 @@ def get_replies(
         replies.append(dict(reply._mapping))
 
     return replies
+    
+
+def video_exists(
+    connection: Connection,
+    video_id: int,
+):
+    result = connection.execute(
+        Video.__table__
+        .select()
+        .where(Video.id == video_id)
+    )
+
+    return result.fetchone() is not None
+    
+
+def get_all_comments_by_video(
+    connection: Connection,
+    video_id: int,
+):
+    result = connection.execute(
+        Comment.__table__
+        .select()
+        .where(Comment.video_id == video_id)
+        .order_by(Comment.created_at)
+    )
+
+    comments = []
+
+    for comment in result:
+        comments.append(dict(comment._mapping))
+
+    return comments
+
+
+def build_comment_tree(comments):
+    comments_by_id = {}
+
+    for comment in comments:
+        comments_by_id[comment["id"]] = {
+            **comment,
+            "replies": []
+        }
+
+    for comment in comments:
+        parent_id = comment["parent_comment_id"]
+
+        if parent_id is not None:
+            comments_by_id[parent_id]["replies"].append(
+                comments_by_id[comment["id"]]
+            )
+
+    return [
+        comment
+        for comment in comments_by_id.values()
+        if comment["parent_comment_id"] is None
+    ]

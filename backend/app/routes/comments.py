@@ -1,10 +1,13 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from app.database import engine
-from app.schemas import CommentCreate, CommentResponse, CommentUpdate, CommentDelete, ReplyCreate
+from app.schemas import CommentCreate, CommentResponse, CommentUpdate, CommentDelete, CommentTreeResponse, ReplyCreate
 from app.services.comment_service import (
     create_comment,
     get_comments_by_video,
+    get_all_comments_by_video,
+    build_comment_tree,
+    video_exists,
     get_comment,
     update_comment,
     delete_comment,
@@ -163,3 +166,23 @@ def get_replies_route(comment_id: int):
             )
 
         return get_replies(connection, comment_id)
+
+
+@router.get(
+    "/videos/{video_id}/comments/tree",
+    response_model=list[CommentTreeResponse]
+)
+def get_comments_tree_route(video_id: int):
+    with engine.connect() as connection:
+        if not video_exists(connection, video_id):
+            raise HTTPException(
+                status_code=404,
+                detail="Video not found"
+            )
+
+        comments = get_all_comments_by_video(
+            connection,
+            video_id
+        )
+
+    return build_comment_tree(comments)
