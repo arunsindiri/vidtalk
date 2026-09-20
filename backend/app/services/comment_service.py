@@ -122,6 +122,20 @@ def create_reply(
     if parent_comment is None:
         return None
 
+    video = connection.execute(
+        Video.__table__
+        .select()
+        .where(Video.id == parent_comment["video_id"])
+    ).fetchone()
+
+    if video is None:
+        return None
+
+    if timestamp is not None and (
+        timestamp < 0 or timestamp > video.duration
+    ):
+        return None
+
     result = connection.execute(
         Comment.__table__.insert()
         .values(

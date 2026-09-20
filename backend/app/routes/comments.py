@@ -101,7 +101,7 @@ def create_reply_route(
     if created_reply is None:
         raise HTTPException(
             status_code=404,
-            detail="Parent comment not found"
+            detail="Invalid parent comment or timestamp"
         )
 
     return created_reply
