@@ -425,10 +425,10 @@ Comments
 ├── Update
 ├── Delete
 ├── Pagination
-├── Timestamp comments
+├── Timestamp validation
 ├── Text validation
 ├── User validation
-├── Ownership protection
+├── Ownership authorization
 │
 └── Replies
     ├── Create
@@ -436,4 +436,61 @@ Comments
     ├── Nested replies
     ├── Timestamp validation
     ├── Text validation
-    └── Ownership protection
+    └── Ownership authorization
+
+Nested tree
+└── GET /videos/{video_id}/comments/tree
+
+
+✅ Completed
+Users
+Videos
+Comments
+Timestamp comments
+Comment update/delete
+Replies
+Nested comment tree
+Comment reactions ❤️
+Reaction count
+Like/unlike
+User reaction status
+Reaction info in normal comment list
+🔜 Still to do
+Add reactions to comment tree 🌳
+Improve comment/reaction database queries
+Authentication / JWT
+Google OAuth integration
+Video upload with Cloudinary
+Video feed/search
+Likes for videos
+Subscriptions
+Notifications
+Watch history
+Playlists
+Video comments 🎥
+Backend validation & error handling cleanup
+Testing
+Android Retrofit API integration
+Android comment UI
+Android video player + timestamp markers
+CameraX video-comment recording
+Room local database
+Hilt + MVVM integration
+Security improvements
+Production deployment
+
+
+Comment Reactions
+├── ✅ Database table
+├── ✅ Alembic migration
+├── ✅ Create reaction
+├── ✅ Duplicate reaction protection
+├── ✅ Reaction count
+├── ✅ Reaction status
+├── ✅ Delete reaction
+├── ✅ Normal comments include reaction data
+├── ✅ Comment tree includes reaction data
+├── ✅ Nested replies include reaction data
+├── ✅ Tested through Swagger
+├── ✅ Committed
+└── ✅ Pushed to GitHub
