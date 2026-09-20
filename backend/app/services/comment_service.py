@@ -99,6 +99,25 @@ def update_comment(
     text: str,
     timestamp: int | None,
 ):
+    comment = get_comment(connection, comment_id)
+
+    if comment is None:
+        return None
+
+    video = connection.execute(
+        Video.__table__
+        .select()
+        .where(Video.id == comment["video_id"])
+    ).fetchone()
+
+    if video is None:
+        return None
+
+    if timestamp is not None and (
+        timestamp < 0 or timestamp > video.duration
+    ):
+        return "invalid_timestamp"
+
     result = connection.execute(
         Comment.__table__
         .update()
@@ -109,13 +128,10 @@ def update_comment(
         )
         .returning(Comment.__table__)
     )
-
-    comment = result.fetchone()
-
-    if comment is None:
-        return None
-
-    return dict(comment._mapping)
+    
+    updated_comment = result.fetchone()
+    
+    return dict(updated_comment._mapping)
 
 
 def delete_comment(connection: Connection, comment_id: int):

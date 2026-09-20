@@ -73,8 +73,17 @@ def update_comment_route(comment_id: int, comment: CommentUpdate):
             comment.timestamp
         )
 
+    if updated_comment == "invalid_timestamp":
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid timestamp"
+        )
+    
     if updated_comment is None:
-        raise HTTPException(status_code=404, detail="Comment not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Comment not found"
+        )
 
     return updated_comment
 
