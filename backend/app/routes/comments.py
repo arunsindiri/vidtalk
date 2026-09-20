@@ -19,7 +19,7 @@ router = APIRouter()
 @router.post("/comments", response_model=CommentResponse)
 def create_comment_route(comment: CommentCreate):
     with engine.begin() as connection:
-        return create_comment(
+        created_comment = create_comment(
             connection,
             comment.user_id,
             comment.video_id,
@@ -27,6 +27,14 @@ def create_comment_route(comment: CommentCreate):
             comment.timestamp,
             comment.parent_comment_id
         )
+
+    if created_comment is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid video or timestamp"
+        )
+
+    return created_comment
 
 
 @router.get("/videos/{video_id}/comments", response_model=list[CommentResponse])

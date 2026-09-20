@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import Connection
 
-from app.models import Comment
+from app.models import Comment, Video
 
 
 def create_comment(
@@ -13,6 +13,20 @@ def create_comment(
     timestamp: int | None,
     parent_comment_id: int | None,
 ):
+    video = connection.execute(
+        Video.__table__
+        .select()
+        .where(Video.id == video_id)
+    ).fetchone()
+
+    if video is None:
+        return None
+    
+    if timestamp is not None and (
+        timestamp < 0 or timestamp > video.duration
+    ):
+        return None
+    
     result = connection.execute(
         Comment.__table__.insert()
         .values(
