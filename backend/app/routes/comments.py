@@ -14,6 +14,13 @@ from app.services.comment_service import (
     create_reply,
     get_replies,
 )
+from app.schemas import ReactionCreate, ReactionResponse
+from app.services.comment_reaction_service import (
+    create_reaction,
+    get_reaction_count,
+    has_user_reacted,
+    delete_reaction,
+)
 
 
 router = APIRouter()
@@ -186,3 +193,105 @@ def get_comments_tree_route(video_id: int):
         )
 
     return build_comment_tree(comments)
+
+
+@router.post(
+    "/comments/{comment_id}/reactions",
+    response_model=ReactionResponse
+)
+def create_reaction_route(
+    comment_id: int,
+    reaction: ReactionCreate
+):
+    with engine.begin() as connection:
+        created_reaction = create_reaction(
+            connection,
+            reaction.user_id,
+            comment_id
+        )
+
+    if created_reaction == "duplicate":
+        raise HTTPException(
+            status_code=409,
+            detail="You have already reacted to this comment"
+        )
+
+    if created_reaction is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid user or comment"
+        )
+
+    return created_reaction
+
+
+@router.get("/comments/{comment_id}/reactions/count")
+def get_reaction_count_route(comment_id: int):
+    with engine.connect() as connection:
+        comment = get_comment(connection, comment_id)
+
+        if comment is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Comment not found"
+            )
+
+        reaction_count = get_reaction_count(
+            connection,
+            comment_id
+        )
+
+    return {
+        "comment_id": comment_id,
+        "reaction_count": reaction_count
+    }
+
+
+@router.get("/comments/{comment_id}/reactions/status")
+def get_reaction_status_route(
+    comment_id: int,
+    user_id: int,
+):
+    with engine.connect() as connection:
+        comment = get_comment(connection, comment_id)
+
+        if comment is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Comment not found"
+            )
+
+        has_reacted = has_user_reacted(
+            connection,
+            user_id,
+            comment_id
+        )
+
+    return {
+        "comment_id": comment_id,
+        "user_id": user_id,
+        "has_reacted": has_reacted
+    }
+
+
+@router.delete("/comments/{comment_id}/reactions")
+def delete_reaction_route(
+    comment_id: int,
+    user_id: int,
+):
+    with engine.begin() as connection:
+        deleted = delete_reaction(
+            connection,
+            user_id,
+            comment_id
+        )
+
+    if deleted is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Reaction not found"
+        )
+
+    return {
+        "message": "Reaction removed successfully"
+    }

@@ -8,3 +8,4 @@ from app.schemas.comment import (
     CommentTreeResponse,
     ReplyCreate,
 )
+from app.schemas.comment_reaction import ReactionCreate, ReactionResponse
