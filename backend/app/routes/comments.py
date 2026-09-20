@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from app.database import engine
-from app.schemas import CommentCreate, CommentResponse, CommentUpdate, ReplyCreate
+from app.schemas import CommentCreate, CommentResponse, CommentUpdate, CommentDelete, ReplyCreate
 from app.services.comment_service import (
     create_comment,
     get_comments_by_video,
@@ -96,12 +96,28 @@ def update_comment_route(comment_id: int, comment: CommentUpdate):
 
 
 @router.delete("/comments/{comment_id}")
-def delete_comment_route(comment_id: int):
+def delete_comment_route(
+    comment_id: int,
+    comment: CommentDelete
+):
     with engine.begin() as connection:
-        deleted = delete_comment(connection, comment_id)
+        deleted = delete_comment(
+            connection,
+            comment_id,
+            comment.user_id
+        )
 
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Comment not found")
+    if deleted == "unauthorized":
+        raise HTTPException(
+            status_code=403,
+            detail="You are not allowed to delete this comment"
+        )
+    
+    if deleted is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Comment not found"
+        )
 
     return {"message": "Comment deleted successfully"}
 

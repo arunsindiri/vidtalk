@@ -4,5 +4,6 @@ from app.schemas.comment import (
     CommentCreate,
     CommentResponse,
     CommentUpdate,
+    CommentDelete,
     ReplyCreate,
 )

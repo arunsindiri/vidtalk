@@ -138,7 +138,20 @@ def update_comment(
     return dict(updated_comment._mapping)
 
 
-def delete_comment(connection: Connection, comment_id: int):
+def delete_comment(
+    connection: Connection,
+    comment_id: int,
+    user_id: int,
+):
+
+    comment = get_comment(connection, comment_id)
+
+    if comment is None:
+        return None
+
+    if comment["user_id"] != user_id:
+        return "unauthorized"
+    
     result = connection.execute(
         Comment.__table__
         .delete()

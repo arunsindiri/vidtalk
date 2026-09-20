@@ -41,6 +41,10 @@ class CommentUpdate(BaseModel):
         return value
 
 
+class CommentDelete(BaseModel):
+    user_id: int
+
+
 class ReplyCreate(BaseModel):
     user_id: int
     text: str = Field(min_length=1)
