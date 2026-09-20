@@ -65,6 +65,7 @@ def get_comments_by_video(
         Comment.__table__
         .select()
         .where(Comment.video_id == video_id)
+        .order_by(Comment.created_at)
         .offset(skip)
         .limit(limit)
     )
