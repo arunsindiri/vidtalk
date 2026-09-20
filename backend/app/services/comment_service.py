@@ -127,6 +127,15 @@ def create_reply(
     text: str,
     timestamp: int | None,
 ):
+    user = connection.execute(
+        User.__table__
+        .select()
+        .where(User.id == user_id)
+    ).fetchone()
+
+    if user is None:
+        return None
+    
     parent_comment = get_comment(connection, parent_comment_id)
 
     if parent_comment is None:
