@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.database import engine
 from app.schemas import CommentCreate, CommentResponse, CommentUpdate, ReplyCreate
@@ -40,8 +40,8 @@ def create_comment_route(comment: CommentCreate):
 @router.get("/videos/{video_id}/comments", response_model=list[CommentResponse])
 def get_comments_by_video_route(
     video_id: int,
-    skip: int,
-    limit: int,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
 ):
     with engine.connect() as connection:
         return get_comments_by_video(
