@@ -29,6 +29,7 @@ class CommentResponse(BaseModel):
 
 
 class CommentUpdate(BaseModel):
+    user_id: int
     text: str = Field(min_length=1)
     timestamp: int | None = None
 

@@ -69,6 +69,7 @@ def update_comment_route(comment_id: int, comment: CommentUpdate):
         updated_comment = update_comment(
             connection,
             comment_id,
+            comment.user_id,
             comment.text,
             comment.timestamp
         )
@@ -77,6 +78,12 @@ def update_comment_route(comment_id: int, comment: CommentUpdate):
         raise HTTPException(
             status_code=400,
             detail="Invalid timestamp"
+        )
+
+    if updated_comment == "unauthorized":
+        raise HTTPException(
+            status_code=403,
+            detail="You are not allowed to update this comment"
         )
     
     if updated_comment is None:

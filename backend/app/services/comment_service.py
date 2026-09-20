@@ -96,6 +96,7 @@ def get_comment(connection: Connection, comment_id: int):
 def update_comment(
     connection: Connection,
     comment_id: int,
+    user_id: int,
     text: str,
     timestamp: int | None,
 ):
@@ -103,6 +104,9 @@ def update_comment(
 
     if comment is None:
         return None
+
+    if comment["user_id"] != user_id:
+        return "unauthorized"
 
     video = connection.execute(
         Video.__table__

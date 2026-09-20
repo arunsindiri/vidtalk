@@ -396,3 +396,24 @@ Replies
 ├── Parent validation
 ├── Timestamp validation
 └── Nested replies
+
+
+We have covered:
+
+✅ Create comment
+✅ Get comments for a video
+✅ Get single comment
+✅ Update comment
+✅ Delete comment
+✅ Comment text validation
+✅ Comment timestamp validation
+✅ Update timestamp validation
+✅ Pagination
+✅ Comment ordering
+✅ User validation
+✅ Create replies
+✅ Nested replies
+✅ Reply retrieval
+✅ Reply text validation
+✅ Reply timestamp validation
+✅ Reply user validation
