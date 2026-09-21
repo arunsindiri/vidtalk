@@ -494,3 +494,34 @@ Comment Reactions
 ├── ✅ Tested through Swagger
 ├── ✅ Committed
 └── ✅ Pushed to GitHub
+
+
+✅ Create JWT
+✅ Sign with secret key
+✅ HS256
+✅ 30-minute expiration
+✅ Decode JWT
+✅ Verify signature
+✅ Check expiration
+✅ Safely reject invalid/expired tokens
+
+
+JWT for user 9
+      ↓
+Authorization: Bearer <JWT>
+      ↓
+HTTPBearer
+      ↓
+get_token()
+      ↓
+decode_access_token()
+      ↓
+verify signature + expiration
+      ↓
+get_current_user_id()
+      ↓
+user_id = 9
+      ↓
+/auth-test
+      ↓
+200 OK
