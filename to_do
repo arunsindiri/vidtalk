@@ -525,3 +525,18 @@ user_id = 9
 /auth-test
       ↓
 200 OK
+
+
+
+
+
+Current comment authentication status
+Operation	User source	Status
+Create comment	JWT	✅
+Update comment	JWT	✅
+Delete comment	JWT	✅
+Create reply	JWT	✅
+Get comments	user_id query	⏳
+Get comment	Public	⏳
+Get replies	Public	⏳
+Reactions	user_id currently supplied by client	⏳
