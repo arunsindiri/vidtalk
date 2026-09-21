@@ -320,12 +320,12 @@ def get_reaction_status_route(
 @router.delete("/comments/{comment_id}/reactions")
 def delete_reaction_route(
     comment_id: int,
-    user_id: int,
+    current_user_id: int = Depends(get_current_user_id)
 ):
     with engine.begin() as connection:
         deleted = delete_reaction(
             connection,
-            user_id,
+            current_user_id,
             comment_id
         )
 
