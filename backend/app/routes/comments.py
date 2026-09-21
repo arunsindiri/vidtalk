@@ -293,7 +293,7 @@ def get_reaction_count_route(comment_id: int):
 @router.get("/comments/{comment_id}/reactions/status")
 def get_reaction_status_route(
     comment_id: int,
-    user_id: int,
+    current_user_id: int = Depends(get_current_user_id)
 ):
     with engine.connect() as connection:
         comment = get_comment(connection, comment_id)
@@ -306,13 +306,13 @@ def get_reaction_status_route(
 
         has_reacted = has_user_reacted(
             connection,
-            user_id,
+            current_user_id,
             comment_id
         )
 
     return {
         "comment_id": comment_id,
-        "user_id": user_id,
+        "user_id": current_user_id,
         "has_reacted": has_reacted
     }
 
