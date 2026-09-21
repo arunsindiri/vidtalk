@@ -140,13 +140,13 @@ def update_comment_route(
 @router.delete("/comments/{comment_id}")
 def delete_comment_route(
     comment_id: int,
-    comment: CommentDelete
+    current_user_id: int = Depends(get_current_user_id)
 ):
     with engine.begin() as connection:
         deleted = delete_comment(
             connection,
             comment_id,
-            comment.user_id
+            current_user_id
         )
 
     if deleted == "unauthorized":

@@ -40,7 +40,7 @@ class CommentUpdate(BaseModel):
 
 
 class CommentDelete(BaseModel):
-    user_id: int
+    pass
 
 
 class ReplyCreate(BaseModel):
