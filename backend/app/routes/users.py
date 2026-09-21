@@ -28,10 +28,12 @@ def get_user_route(user_id: int):
 
     return user
         
-@router.delete("/users/{user_id}")
-def delete_user_route(user_id: int):
+@router.delete("/users/me")
+def delete_user_route(
+    current_user_id: int = Depends(get_current_user_id)
+):
     with engine.begin() as connection:
-        deleted = delete_user(connection, user_id)
+        deleted = delete_user(connection, current_user_id)
 
     if not deleted:
         raise HTTPException(status_code=404, detail="User not found")
