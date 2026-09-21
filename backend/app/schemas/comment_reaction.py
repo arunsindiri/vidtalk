@@ -3,10 +3,6 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class ReactionCreate(BaseModel):
-    pass
-
-
 class ReactionResponse(BaseModel):
     id: int
     user_id: int

@@ -9,7 +9,6 @@ from app.schemas.comment import (
     ReplyCreate,
 )
 from app.schemas.comment_reaction import (
-    ReactionCreate,
     ReactionResponse,
     CommentWithReactionResponse,
     CommentTreeWithReactionResponse,

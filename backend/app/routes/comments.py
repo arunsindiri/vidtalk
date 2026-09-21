@@ -24,7 +24,7 @@ from app.services.comment_service import (
     create_reply,
     get_replies,
 )
-from app.schemas import ReactionCreate, ReactionResponse
+from app.schemas import ReactionResponse
 from app.services.comment_reaction_service import (
     create_reaction,
     get_reaction_count,
@@ -246,7 +246,6 @@ def get_comments_tree_route(
 )
 def create_reaction_route(
     comment_id: int,
-    reaction: ReactionCreate,
     current_user_id: int = Depends(get_current_user_id)
 ):
     with engine.begin() as connection:
