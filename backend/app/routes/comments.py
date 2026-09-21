@@ -212,7 +212,10 @@ def get_replies_route(comment_id: int):
     "/videos/{video_id}/comments/tree",
     response_model=list[CommentTreeWithReactionResponse]
 )
-def get_comments_tree_route(video_id: int, user_id: int):
+def get_comments_tree_route(
+    video_id: int,
+    current_user_id: int = Depends(get_current_user_id)
+):
     with engine.connect() as connection:
     
         if not video_exists(connection, video_id):
@@ -231,7 +234,7 @@ def get_comments_tree_route(video_id: int, user_id: int):
         tree = add_reaction_data_to_tree(
             connection,
             tree,
-            user_id
+            current_user_id
         )
 
         return tree
