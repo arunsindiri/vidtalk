@@ -63,7 +63,7 @@ def create_comment_route(
 @router.get("/videos/{video_id}/comments", response_model=list[CommentWithReactionResponse])
 def get_comments_by_video_route(
     video_id: int,
-    user_id: int,
+    current_user_id: int = Depends(get_current_user_id),
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
 ):
@@ -83,7 +83,7 @@ def get_comments_by_video_route(
 
             comment["has_reacted"] = has_user_reacted(
                 connection,
-                user_id,
+                current_user_id,
                 comment["id"]
             )
 
