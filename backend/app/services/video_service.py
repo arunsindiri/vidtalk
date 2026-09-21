@@ -87,11 +87,18 @@ def update_video(
     return dict(video._mapping)
 
 
-def delete_video(connection: Connection, video_id: int):
+def delete_video(
+    connection: Connection,
+    video_id: int,
+    user_id: int
+):
     result = connection.execute(
         Video.__table__
         .delete()
-        .where(Video.id == video_id)
+        .where(
+            Video.id == video_id,
+            Video.user_id == user_id
+        )
     )
 
     return result.rowcount > 0

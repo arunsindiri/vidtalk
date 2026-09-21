@@ -65,9 +65,16 @@ def update_video_route(
 
 
 @router.delete("/videos/{video_id}")
-def delete_video_route(video_id: int):
+def delete_video_route(
+    video_id: int,
+    current_user_id: int = Depends(get_current_user_id)
+):
     with engine.begin() as connection:
-        deleted = delete_video(connection, video_id)
+        deleted = delete_video(
+            connection,
+            video_id,
+            current_user_id
+        )
 
     if not deleted:
         raise HTTPException(status_code=404, detail="Video not found")
