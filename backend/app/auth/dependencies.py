@@ -1,7 +1,9 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from app.auth.security import decode_access_token
 
+from app.auth.security import decode_access_token
+from app.database import engine
+from app.services.user_service import get_user
 
 bearer_scheme = HTTPBearer()
 
@@ -23,4 +25,15 @@ def get_current_user_id(
             detail="Invalid or expired token"
         )
 
-    return payload["user_id"]
+    user_id = payload["user_id"]
+    
+    with engine.connect() as connection:
+        user = get_user(connection, user_id)
+    
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+    
+    return user["id"]
