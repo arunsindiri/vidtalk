@@ -540,3 +540,43 @@ Get comments	user_id query	⏳
 Get comment	Public	⏳
 Get replies	Public	⏳
 Reactions	user_id currently supplied by client	⏳
+
+
+
+
+Client
+  │
+  │ JWT
+  ▼
+get_current_user_id()
+  │
+  ▼
+current_user_id
+  │
+  ├── Create comment
+  ├── Update comment
+  ├── Delete comment
+  ├── Create reply
+  ├── List comments
+  ├── Comment tree
+  ├── Create reaction
+  ├── Reaction status
+  └── Delete reaction
+
+
+Current authentication progress
+
+We have now converted the user-specific write operations:
+
+Feature	Endpoint	Identity source	Status
+Create comment	POST /comments	JWT	✅
+Update comment	PUT /comments/{id}	JWT	✅
+Delete comment	DELETE /comments/{id}	JWT	✅
+Create reply	POST /comments/{id}/replies	JWT	✅
+Create reaction	POST /comments/{id}/reactions	JWT	✅
+Reaction status	GET /comments/{id}/reactions/status	JWT	✅
+Delete reaction	DELETE /comments/{id}/reactions	JWT	✅
+Comment listing	GET /videos/{id}/comments	JWT	✅
+Comment tree	GET /videos/{id}/comments/tree	JWT	✅
+Update profile	PUT /users/me	JWT	✅
+Delete account	DELETE /users/me	JWT	✅

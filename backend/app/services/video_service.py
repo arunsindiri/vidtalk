@@ -60,6 +60,7 @@ def get_video(connection: Connection, video_id: int):
 def update_video(
     connection: Connection,
     video_id: int,
+    user_id: int,
     title: str,
     description: str | None,
     video_url: str,
@@ -68,7 +69,7 @@ def update_video(
     result = connection.execute(
         Video.__table__
         .update()
-        .where(Video.id == video_id)
+        .where(Video.id == video_id, Video.user_id == user_id)
         .values(
             title=title,
             description=description,

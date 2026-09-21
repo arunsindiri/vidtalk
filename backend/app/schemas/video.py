@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 
 class VideoCreate(BaseModel):
-    user_id: int
     title: str
     description: str | None = None
     video_url: str

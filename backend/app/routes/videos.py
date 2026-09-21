@@ -1,6 +1,5 @@
-from fastapi import APIRouter, HTTPException
-
-
+from fastapi import APIRouter, Depends, HTTPException
+from app.auth.dependencies import get_current_user_id
 from app.services.video_service import create_video, get_videos, get_video, update_video, delete_video, get_videos_by_user
 from app.schemas import VideoCreate, VideoResponse, VideoUpdate
 from app.database import engine
@@ -10,11 +9,14 @@ router = APIRouter()
 
 
 @router.post("/videos", response_model=VideoResponse)
-def create_video_route(video: VideoCreate):
+def create_video_route(
+    video: VideoCreate,
+    current_user_id: int = Depends(get_current_user_id)
+):
     with engine.begin() as connection:
         return create_video(
             connection,
-            video.user_id,
+            current_user_id,
             video.title,
             video.description,
             video.video_url,
@@ -40,11 +42,16 @@ def get_video_route(video_id: int):
 
 
 @router.put("/videos/{video_id}", response_model=VideoResponse)
-def update_video_route(video_id: int, video: VideoUpdate):
+def update_video_route(
+    video_id: int,
+    video: VideoUpdate,
+    current_user_id: int = Depends(get_current_user_id)
+):
     with engine.begin() as connection:
         updated_video = update_video(
             connection,
             video_id,
+            current_user_id,
             video.title,
             video.description,
             video.video_url,
