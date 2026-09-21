@@ -4,8 +4,7 @@ from pydantic import BaseModel
 
 
 class ReactionCreate(BaseModel):
-    user_id: int
-    comment_id: int
+    pass
 
 
 class ReactionResponse(BaseModel):

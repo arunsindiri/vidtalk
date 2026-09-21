@@ -243,12 +243,13 @@ def get_comments_tree_route(video_id: int, user_id: int):
 )
 def create_reaction_route(
     comment_id: int,
-    reaction: ReactionCreate
+    reaction: ReactionCreate,
+    current_user_id: int = Depends(get_current_user_id)
 ):
     with engine.begin() as connection:
         created_reaction = create_reaction(
             connection,
-            reaction.user_id,
+            current_user_id,
             comment_id
         )
 
