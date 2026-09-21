@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class CommentCreate(BaseModel):
-    user_id: int
     video_id: int
     text: str = Field(min_length=1)
     timestamp: int | None = None
@@ -29,7 +28,6 @@ class CommentResponse(BaseModel):
 
 
 class CommentUpdate(BaseModel):
-    user_id: int
     text: str = Field(min_length=1)
     timestamp: int | None = None
 

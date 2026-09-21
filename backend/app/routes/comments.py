@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from app.auth.dependencies import get_current_user_id
 
 from app.database import engine
 from app.schemas import (
@@ -32,16 +33,18 @@ from app.services.comment_reaction_service import (
     add_reaction_data_to_tree,
 )
 
-
 router = APIRouter()
 
 
 @router.post("/comments", response_model=CommentResponse)
-def create_comment_route(comment: CommentCreate):
+def create_comment_route(
+    comment: CommentCreate,
+    current_user_id: int = Depends(get_current_user_id)
+):
     with engine.begin() as connection:
         created_comment = create_comment(
             connection,
-            comment.user_id,
+            current_user_id,
             comment.video_id,
             comment.text,
             comment.timestamp,
@@ -99,12 +102,16 @@ def get_comment_route(comment_id: int):
 
 
 @router.put("/comments/{comment_id}", response_model=CommentResponse)
-def update_comment_route(comment_id: int, comment: CommentUpdate):
+def update_comment_route(
+    comment_id: int,
+    comment: CommentUpdate,
+    current_user_id: int = Depends(get_current_user_id)
+):
     with engine.begin() as connection:
         updated_comment = update_comment(
             connection,
             comment_id,
-            comment.user_id,
+            current_user_id,
             comment.text,
             comment.timestamp
         )
