@@ -170,12 +170,13 @@ def delete_comment_route(
 )
 def create_reply_route(
     comment_id: int,
-    reply: ReplyCreate
+    reply: ReplyCreate,
+    current_user_id: int = Depends(get_current_user_id)
 ):
     with engine.begin() as connection:
         created_reply = create_reply(
             connection,
-            reply.user_id,
+            current_user_id,
             comment_id,
             reply.text,
             reply.timestamp
