@@ -31,9 +31,17 @@ def create_video(
     return dict(video._mapping)
 
 
-def get_videos(connection: Connection):
+def get_videos(
+    connection: Connection,
+    skip: int,
+    limit: int
+):
     result = connection.execute(
-        Video.__table__.select()
+        Video.__table__
+        .select()
+        .order_by(Video.created_at.desc())
+        .offset(skip)
+        .limit(limit)
     )
 
     videos = []
