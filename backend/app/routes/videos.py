@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from app.auth.dependencies import get_current_user_id
-from app.services.video_service import create_video, get_videos, get_video, update_video, delete_video, get_videos_by_user
+from app.services.video_service import create_video, get_videos, get_video, update_video, delete_video, get_videos_by_user, search_videos
 from app.schemas import VideoCreate, VideoResponse, VideoUpdate
 from app.database import engine
 
@@ -31,6 +31,21 @@ def get_videos_route(
 ):
     with engine.connect() as connection:
         return get_videos(connection, skip, limit)
+
+
+@router.get("/videos/search", response_model=list[VideoResponse])
+def search_videos_route(
+    q: str,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100)
+):
+    with engine.connect() as connection:
+        return search_videos(
+            connection,
+            q,
+            skip,
+            limit
+        )
 
 
 @router.get("/videos/{video_id}", response_model=VideoResponse)

@@ -52,6 +52,34 @@ def get_videos(
     return videos
 
 
+def search_videos(
+    connection: Connection,
+    query: str,
+    skip: int,
+    limit: int
+):
+    search_pattern = f"%{query}%"
+
+    result = connection.execute(
+        Video.__table__
+        .select()
+        .where(
+            Video.title.ilike(search_pattern)
+            | Video.description.ilike(search_pattern)
+        )
+        .order_by(Video.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+
+    videos = []
+    
+    for video in result:
+        videos.append(dict(video._mapping))
+    
+    return videos
+
+
 def get_video(connection: Connection, video_id: int):
     result = connection.execute(
         Video.__table__.select().where(Video.id == video_id)
