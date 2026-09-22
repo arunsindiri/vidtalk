@@ -680,3 +680,39 @@ ANDROID
 ├── ⬜ History
 ├── ⬜ Playlists
 └── ⬜ Notifications
+
+
+
+VidTalk backend progress
+
+We now have:
+
+👤 Users
+🎥 Videos
+💬 Comments
+↩️ Nested replies
+❤️ Comment reactions
+❤️ Video likes ✅
+🔐 JWT authentication + ownership
+📄 Pagination
+🔎 Video search
+
+
+Likes feature status
+
+We've now completed the backend pieces for video likes:
+
+✅ video_likes database table
+✅ Unique (user_id, video_id) constraint
+✅ Like video
+✅ Prevent duplicate likes
+✅ Unlike video
+✅ Get like count
+✅ Get user's like status
+✅ GET /videos includes like_count
+✅ GET /videos includes has_liked
+✅ Video search includes like_count
+✅ Swagger tested
+✅ JWT ownership/user-specific status tested
+✅ Database migration applied
+✅ Python compilation checked

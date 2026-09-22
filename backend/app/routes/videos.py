@@ -134,24 +134,32 @@ def get_like_status_route(
 @router.get("/videos", response_model=list[VideoResponse])
 def get_videos_route(
     skip: int = Query(0, ge=0),
-    limit: int = Query(20, ge=1, le=100)
+    limit: int = Query(20, ge=1, le=100),
+    current_user_id: int = Depends(get_current_user_id)
 ):
     with engine.connect() as connection:
-        return get_videos(connection, skip, limit)
+        return get_videos(
+            connection,
+            skip,
+            limit,
+            current_user_id
+        )
 
 
 @router.get("/videos/search", response_model=list[VideoResponse])
 def search_videos_route(
     q: str,
     skip: int = Query(0, ge=0),
-    limit: int = Query(20, ge=1, le=100)
+    limit: int = Query(20, ge=1, le=100),
+    current_user_id: int = Depends(get_current_user_id)
 ):
     with engine.connect() as connection:
         return search_videos(
             connection,
             q,
             skip,
-            limit
+            limit,
+            current_user_id
         )
 
 

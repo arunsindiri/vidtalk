@@ -17,6 +17,8 @@ class VideoResponse(BaseModel):
     video_url: str
     duration: int
     created_at: datetime
+    like_count: int
+    has_liked: bool
     
 
 class VideoUpdate(BaseModel):

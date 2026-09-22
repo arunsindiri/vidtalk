@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from sqlalchemy import Connection
+from sqlalchemy import Connection, case, func
 
-from app.models import Video
+from app.models import Video, VideoLike
 
 
 def create_video(
@@ -34,11 +34,35 @@ def create_video(
 def get_videos(
     connection: Connection,
     skip: int,
-    limit: int
+    limit: int,
+    current_user_id: int
 ):
     result = connection.execute(
         Video.__table__
+        .outerjoin(
+            VideoLike.__table__,
+            Video.id == VideoLike.video_id
+        )
         .select()
+        .with_only_columns(
+            *Video.__table__.c,
+            func.count(VideoLike.id).label("like_count"),
+            case(
+                (
+                    func.count(
+                        case(
+                            (
+                                VideoLike.user_id == current_user_id,
+                                1
+                            )
+                        )
+                    ) > 0,
+                    True
+                ),
+                else_=False
+            ).label("has_liked")
+        )
+        .group_by(Video.id)
         .order_by(Video.created_at.desc())
         .offset(skip)
         .limit(limit)
@@ -56,27 +80,47 @@ def search_videos(
     connection: Connection,
     query: str,
     skip: int,
-    limit: int
+    limit: int,
+    current_user_id: int
 ):
     search_pattern = f"%{query}%"
 
     result = connection.execute(
         Video.__table__
+        .outerjoin(
+            VideoLike.__table__,
+            Video.id == VideoLike.video_id
+        )
         .select()
+        .with_only_columns(
+            *Video.__table__.c,
+            func.count(VideoLike.id).label("like_count"),
+            (
+                func.count(
+                    case(
+                        (
+                            VideoLike.user_id == current_user_id,
+                            1
+                        )
+                    )
+                ) > 0
+            ).label("has_liked")
+        )
         .where(
             Video.title.ilike(search_pattern)
             | Video.description.ilike(search_pattern)
         )
+        .group_by(Video.id)
         .order_by(Video.created_at.desc())
         .offset(skip)
         .limit(limit)
     )
 
     videos = []
-    
+
     for video in result:
         videos.append(dict(video._mapping))
-    
+
     return videos
 
 
