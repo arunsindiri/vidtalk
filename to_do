@@ -580,3 +580,103 @@ Comment listing	GET /videos/{id}/comments	JWT	✅
 Comment tree	GET /videos/{id}/comments/tree	JWT	✅
 Update profile	PUT /users/me	JWT	✅
 Delete account	DELETE /users/me	JWT	✅
+
+
+Current video authentication status
+Operation	JWT ownership	Status
+POST /videos	Create as authenticated user	✅
+PUT /videos/{video_id}	Only owner can update	✅
+GET /videos	Public	✅
+GET /videos/{video_id}	Public	✅
+GET /users/{user_id}/videos	Public	✅
+DELETE /videos/{video_id}	Still needs ownership	⏳
+
+
+
+Users
+  POST       public        ✅
+  GET        public        ✅
+  GET /id    public        ✅
+  PUT /me    JWT           ✅
+  DELETE /me JWT           ✅
+
+Videos
+  POST        JWT          ✅
+  GET         public       ✅
+  GET /id     public       ✅
+  PUT /id     JWT + owner  ✅
+  DELETE /id  JWT + owner  ✅
+
+Comments
+  POST        JWT          ✅
+  GET         public/auth  ✅
+  PUT         JWT + owner  ✅
+  DELETE      JWT + owner  ✅
+  Replies     JWT/public   ✅
+  Reactions   JWT           ✅
+
+
+Backend checkpoint
+
+We've completed the current JWT/ownership review:
+
+JWT validation ✅
+User ID validation inside JWT ✅
+User update/delete ownership ✅
+Video create/update/delete ownership ✅
+Comment update/delete ownership ✅
+Reply authentication ✅
+Reaction authentication ✅
+Public read endpoints reviewed ✅
+Compilation tests passing ✅
+Changes committed and pushed ✅
+
+
+
+🧭 Overall roadmap
+BACKEND
+│
+├── ✅ Foundation
+├── ✅ Users
+├── ✅ JWT Authentication
+├── ✅ Videos
+├── ✅ Video ownership
+├── ✅ Video pagination
+├── ✅ Video search
+├── ✅ Comments
+├── ✅ Replies
+├── ✅ Comment tree
+├── ✅ Comment pagination
+├── ✅ Comment reactions
+│
+├── ⬜ Video views
+├── ⬜ Video likes
+├── ⬜ Subscriptions
+├── ⬜ Watch history
+├── ⬜ Playlists
+├── ⬜ Notifications
+├── ⬜ Cloudinary uploads
+├── ⬜ Video metadata
+├── ⬜ Home/feed
+├── ⬜ Security hardening
+└── ⬜ Automated tests
+          │
+          ▼
+ANDROID
+│
+├── ⬜ Project setup
+├── ⬜ Compose UI
+├── ⬜ Navigation
+├── ⬜ Login/JWT
+├── ⬜ Home feed
+├── ⬜ Video player
+├── ⬜ Search
+├── ⬜ Comments
+├── ⬜ Video comments
+├── ⬜ CameraX recording
+├── ⬜ Upload
+├── ⬜ Likes
+├── ⬜ Subscriptions
+├── ⬜ History
+├── ⬜ Playlists
+└── ⬜ Notifications

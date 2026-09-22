@@ -3,6 +3,13 @@ from app.auth.dependencies import get_current_user_id
 from app.services.video_service import create_video, get_videos, get_video, update_video, delete_video, get_videos_by_user, search_videos
 from app.schemas import VideoCreate, VideoResponse, VideoUpdate
 from app.database import engine
+from app.services.video_like_service import (
+    create_like,
+    get_like_count,
+    has_user_liked,
+    delete_like,
+)
+from app.schemas import VideoCreate, VideoResponse, VideoUpdate, VideoLikeResponse
 
 
 router = APIRouter()
@@ -22,6 +29,106 @@ def create_video_route(
             video.video_url,
             video.duration
         )
+
+
+@router.post(
+    "/videos/{video_id}/like",
+    response_model=VideoLikeResponse
+)
+def create_like_route(
+    video_id: int,
+    current_user_id: int = Depends(get_current_user_id)
+):
+    with engine.begin() as connection:
+        created_like = create_like(
+            connection,
+            current_user_id,
+            video_id
+        )
+
+    if created_like == "duplicate":
+        raise HTTPException(
+            status_code=409,
+            detail="You have already liked this video"
+        )
+
+    if created_like is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid user or video"
+        )
+
+    return created_like
+
+
+@router.delete("/videos/{video_id}/like")
+def delete_like_route(
+    video_id: int,
+    current_user_id: int = Depends(get_current_user_id)
+):
+    with engine.begin() as connection:
+        deleted = delete_like(
+            connection,
+            current_user_id,
+            video_id
+        )
+
+    if deleted is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Like not found"
+        )
+
+    return {"message": "Video unliked successfully"}
+
+
+@router.get("/videos/{video_id}/likes/count")
+def get_like_count_route(video_id: int):
+    with engine.connect() as connection:
+        video = get_video(connection, video_id)
+
+        if video is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Video not found"
+            )
+
+        like_count = get_like_count(
+            connection,
+            video_id
+        )
+
+    return {
+        "video_id": video_id,
+        "like_count": like_count
+    }
+
+
+@router.get("/videos/{video_id}/like-status")
+def get_like_status_route(
+    video_id: int,
+    current_user_id: int = Depends(get_current_user_id)
+):
+    with engine.connect() as connection:
+        video = get_video(connection, video_id)
+
+        if video is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Video not found"
+            )
+
+        has_liked = has_user_liked(
+            connection,
+            current_user_id,
+            video_id
+        )
+
+    return {
+        "video_id": video_id,
+        "user_id": current_user_id,
+        "has_liked": has_liked
+    }
 
 
 @router.get("/videos", response_model=list[VideoResponse])
