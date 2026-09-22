@@ -25,7 +25,13 @@ def get_current_user_id(
             detail="Invalid or expired token"
         )
 
-    user_id = payload["user_id"]
+    user_id = payload.get("user_id")
+    
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
     
     with engine.connect() as connection:
         user = get_user(connection, user_id)
