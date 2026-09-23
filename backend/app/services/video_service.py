@@ -146,10 +146,22 @@ def update_video(
     video_url: str,
     duration: int,
 ):
+    video = connection.execute(
+        Video.__table__
+        .select()
+        .where(Video.id == video_id)
+    ).fetchone()
+
+    if video is None:
+        return None
+
+    if video.user_id != user_id:
+        return "forbidden"
+
     result = connection.execute(
         Video.__table__
         .update()
-        .where(Video.id == video_id, Video.user_id == user_id)
+        .where(Video.id == video_id)
         .values(
             title=title,
             description=description,
@@ -159,12 +171,9 @@ def update_video(
         .returning(Video.__table__)
     )
 
-    video = result.fetchone()
+    updated_video = result.fetchone()
 
-    if video is None:
-        return None
-
-    return dict(video._mapping)
+    return dict(updated_video._mapping)
 
 
 def delete_video(
@@ -172,13 +181,22 @@ def delete_video(
     video_id: int,
     user_id: int
 ):
+    video = connection.execute(
+        Video.__table__
+        .select()
+        .where(Video.id == video_id)
+    ).fetchone()
+
+    if video is None:
+        return None
+
+    if video.user_id != user_id:
+        return "forbidden"
+
     result = connection.execute(
         Video.__table__
         .delete()
-        .where(
-            Video.id == video_id,
-            Video.user_id == user_id
-        )
+        .where(Video.id == video_id)
     )
 
     return result.rowcount > 0

@@ -14,7 +14,8 @@ class CommentWithReactionResponse(BaseModel):
     id: int
     user_id: int
     video_id: int
-    text: str
+    text: str | None
+    video_url: str | None
     timestamp: int | None
     parent_comment_id: int | None
     created_at: datetime

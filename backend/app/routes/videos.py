@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from app.auth.dependencies import get_current_user_id
 from app.services.video_service import create_video, get_videos, get_video, update_video, delete_video, get_videos_by_user, search_videos
-from app.schemas import VideoCreate, VideoResponse, VideoUpdate
+from app.schemas import VideoCreate, VideoResponse, VideoUpdate, VideoFeedResponse
 from app.database import engine
 from app.services.video_like_service import (
     create_like,
@@ -131,7 +131,7 @@ def get_like_status_route(
     }
 
 
-@router.get("/videos", response_model=list[VideoResponse])
+@router.get("/videos", response_model=list[VideoFeedResponse])
 def get_videos_route(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
@@ -146,7 +146,7 @@ def get_videos_route(
         )
 
 
-@router.get("/videos/search", response_model=list[VideoResponse])
+@router.get("/videos/search", response_model=list[VideoFeedResponse])
 def search_videos_route(
     q: str,
     skip: int = Query(0, ge=0),
@@ -193,7 +193,10 @@ def update_video_route(
 
     if updated_video is None:
         raise HTTPException(status_code=404, detail="Video not found")
-
+    
+    if updated_video == "forbidden":
+        raise HTTPException(status_code=403, detail="You do not own this video")
+    
     return updated_video
 
 
@@ -209,9 +212,12 @@ def delete_video_route(
             current_user_id
         )
 
-    if not deleted:
+    if deleted is None:
         raise HTTPException(status_code=404, detail="Video not found")
-
+    
+    if deleted == "forbidden":
+        raise HTTPException(status_code=403, detail="You do not own this video")
+    
     return {"message": "Video deleted successfully"}
 
 

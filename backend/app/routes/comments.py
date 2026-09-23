@@ -47,6 +47,7 @@ def create_comment_route(
             current_user_id,
             comment.video_id,
             comment.text,
+            comment.video_url,
             comment.timestamp,
             comment.parent_comment_id
         )
@@ -179,6 +180,7 @@ def create_reply_route(
             current_user_id,
             comment_id,
             reply.text,
+            reply.video_url,
             reply.timestamp
         )
 

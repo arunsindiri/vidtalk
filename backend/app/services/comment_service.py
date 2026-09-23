@@ -9,11 +9,11 @@ def create_comment(
     connection: Connection,
     user_id: int,
     video_id: int,
-    text: str,
+    text: str | None,
+    video_url: str | None,
     timestamp: int | None,
     parent_comment_id: int | None,
 ):
-
     user = connection.execute(
         User.__table__
         .select()
@@ -22,7 +22,7 @@ def create_comment(
 
     if user is None:
         return None
-    
+
     video = connection.execute(
         Video.__table__
         .select()
@@ -31,18 +31,19 @@ def create_comment(
 
     if video is None:
         return None
-    
+
     if timestamp is not None and (
         timestamp < 0 or timestamp > video.duration
     ):
         return None
-    
+
     result = connection.execute(
         Comment.__table__.insert()
         .values(
             user_id=user_id,
             video_id=video_id,
             text=text,
+            video_url=video_url,
             timestamp=timestamp,
             parent_comment_id=parent_comment_id,
             created_at=datetime.now(),
@@ -165,7 +166,8 @@ def create_reply(
     connection: Connection,
     user_id: int,
     parent_comment_id: int,
-    text: str,
+    text: str | None,
+    video_url: str | None,
     timestamp: int | None,
 ):
     user = connection.execute(
@@ -202,6 +204,7 @@ def create_reply(
             user_id=user_id,
             video_id=parent_comment["video_id"],
             text=text,
+            video_url=video_url,
             timestamp=timestamp,
             parent_comment_id=parent_comment_id,
             created_at=datetime.now(),
