@@ -1,3 +1,4 @@
+import tempfile
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from app.auth.dependencies import get_current_user_id
 from app.services.video_service import create_video, get_videos, get_video, update_video, delete_video, get_videos_by_user, search_videos
@@ -14,6 +15,13 @@ from app.schemas import (
     VideoFeedResponse,
     VideoLikeResponse,
 )
+from app.services.video_processing_service import (
+    get_video_duration,
+    get_file_size_mb,
+    compress_video,
+    delete_temp_file,
+)
+
 
 router = APIRouter()
 
@@ -24,25 +32,75 @@ def create_video_route(
     description: str | None = Form(None),
     file: UploadFile = File(...),
     current_user_id: int = Depends(get_current_user_id)
-):    
+):
     if file.content_type != "video/mp4":
         raise HTTPException(
             status_code=400,
             detail="Only MP4 videos are allowed"
         )
 
-    result = upload_video(file.file)
-    
-    with engine.begin() as connection:
-        return create_video(
-            connection,
-            current_user_id,
-            title,
-            description,
-            result["secure_url"],
-            result["public_id"],
-            int(result["duration"])
+    temp_path = None
+    compressed_path = None
+
+    try:
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".mp4"
+        ) as temp_file:
+            file.file.seek(0)
+            temp_file.write(file.file.read())
+            temp_path = temp_file.name
+
+        compressed_path = temp_path.replace(
+            ".mp4",
+            "_compressed.mp4"
         )
+
+        duration = get_video_duration(temp_path)
+
+        if duration > 180:
+            raise HTTPException(
+                status_code=400,
+                detail="Video must be 3 minutes or shorter"
+            )
+
+        file_size_mb = get_file_size_mb(temp_path)
+
+        if file_size_mb > 50:
+            compress_video(temp_path, compressed_path)
+
+            compressed_size_mb = get_file_size_mb(compressed_path)
+
+            if compressed_size_mb > 50:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Video is still larger than 50 MB after compression"
+                )
+
+            upload_path = compressed_path
+
+        else:
+            upload_path = temp_path
+
+        result = upload_video(upload_path)
+
+        with engine.begin() as connection:
+            return create_video(
+                connection,
+                current_user_id,
+                title,
+                description,
+                result["secure_url"],
+                result["public_id"],
+                int(result["duration"])
+            )
+
+    finally:
+        if temp_path:
+            delete_temp_file(temp_path)
+
+        if compressed_path:
+            delete_temp_file(compressed_path)
 
 
 @router.post(
