@@ -4,6 +4,8 @@ from sqlalchemy import Connection, case, func
 
 from app.models import Video, VideoLike
 
+from app.services.cloudinary_service import delete_video as delete_cloudinary_video
+
 
 def create_video(
     connection: Connection,
@@ -189,12 +191,14 @@ def delete_video(
         .where(Video.id == video_id)
     ).fetchone()
 
-    if video is None:
-        return None
-
     if video.user_id != user_id:
         return "forbidden"
-
+    
+    cloudinary_public_id = video.cloudinary_public_id
+    
+    if cloudinary_public_id:
+        delete_cloudinary_video(cloudinary_public_id)
+    
     result = connection.execute(
         Video.__table__
         .delete()
