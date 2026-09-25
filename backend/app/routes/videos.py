@@ -261,7 +261,23 @@ def update_video_route(
             detail="Only MP4 videos are allowed"
         )
 
-    result = upload_video(file.file)
+    with engine.connect() as connection:
+        existing_video = get_video(
+            connection,
+            video_id
+        )
+    
+    if existing_video is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Video not found"
+        )
+    
+    if existing_video["user_id"] != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not own this video"
+        )
 
     with engine.begin() as connection:
         updated_video = update_video(
