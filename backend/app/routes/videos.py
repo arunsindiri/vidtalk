@@ -254,7 +254,6 @@ def update_video_route(
     file: UploadFile = File(...),
     current_user_id: int = Depends(get_current_user_id)
 ):
-
     if file.content_type != "video/mp4":
         raise HTTPException(
             status_code=400,
@@ -266,37 +265,95 @@ def update_video_route(
             connection,
             video_id
         )
-    
+
     if existing_video is None:
         raise HTTPException(
             status_code=404,
             detail="Video not found"
         )
-    
+
     if existing_video["user_id"] != current_user_id:
         raise HTTPException(
             status_code=403,
             detail="You do not own this video"
         )
 
-    with engine.begin() as connection:
-        updated_video = update_video(
-            connection,
-            video_id,
-            current_user_id,
-            title,
-            description,
-            result["secure_url"],
-            result["public_id"],
-            int(result["duration"])
+    temp_path = None
+    compressed_path = None
+
+    try:
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".mp4"
+        ) as temp_file:
+            file.file.seek(0)
+            temp_file.write(file.file.read())
+            temp_path = temp_file.name
+
+        compressed_path = temp_path.replace(
+            ".mp4",
+            "_compressed.mp4"
         )
 
+        duration = get_video_duration(temp_path)
+
+        if duration > 180:
+            raise HTTPException(
+                status_code=400,
+                detail="Video must be 3 minutes or shorter"
+            )
+
+        file_size_mb = get_file_size_mb(temp_path)
+
+        if file_size_mb > 50:
+            compress_video(temp_path, compressed_path)
+
+            compressed_size_mb = get_file_size_mb(compressed_path)
+
+            if compressed_size_mb > 50:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Video is still larger than 50 MB after compression"
+                )
+
+            upload_path = compressed_path
+
+        else:
+            upload_path = temp_path
+
+        result = upload_video(upload_path)
+
+        with engine.begin() as connection:
+            updated_video = update_video(
+                connection,
+                video_id,
+                current_user_id,
+                title,
+                description,
+                result["secure_url"],
+                result["public_id"],
+                int(result["duration"])
+            )
+
+    finally:
+        if temp_path:
+            delete_temp_file(temp_path)
+
+        if compressed_path:
+            delete_temp_file(compressed_path)
+
     if updated_video is None:
-        raise HTTPException(status_code=404, detail="Video not found")
-    
+        raise HTTPException(
+            status_code=404,
+            detail="Video not found"
+        )
+
     if updated_video == "forbidden":
-        raise HTTPException(status_code=403, detail="You do not own this video")
-    
+        raise HTTPException(
+            status_code=403,
+            detail="You do not own this video"
+        )
+
     return updated_video
 
 
@@ -314,10 +371,10 @@ def delete_video_route(
 
     if deleted is None:
         raise HTTPException(status_code=404, detail="Video not found")
-    
+
     if deleted == "forbidden":
         raise HTTPException(status_code=403, detail="You do not own this video")
-    
+
     return {"message": "Video deleted successfully"}
 
 
