@@ -834,3 +834,20 @@ Schema cleanup          ✅
 API testing             ✅
 
 
+POST /videos
+    ✅ MP4
+    ✅ ≤ 3 minutes
+    ✅ ≤ 50 MB
+    ✅ compression
+    ✅ Cloudinary
+    ✅ cleanup
+
+PUT /videos/{id}
+    ✅ MP4
+    ✅ video exists
+    ✅ ownership
+    ✅ ≤ 3 minutes
+    ✅ ≤ 50 MB
+    ✅ compression
+    ✅ Cloudinary
+    ✅ cleanup
