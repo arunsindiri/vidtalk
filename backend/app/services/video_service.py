@@ -11,6 +11,7 @@ def create_video(
     title: str,
     description: str | None,
     video_url: str,
+    cloudinary_public_id: str | None,
     duration: int,
 ):
     result = connection.execute(
@@ -20,6 +21,7 @@ def create_video(
             title=title,
             description=description,
             video_url=video_url,
+            cloudinary_public_id=cloudinary_public_id,
             duration=duration,
             created_at=datetime.now(),
         )

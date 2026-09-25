@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from app.auth.dependencies import get_current_user_id
 from app.services.video_service import create_video, get_videos, get_video, update_video, delete_video, get_videos_by_user, search_videos
-from app.schemas import VideoCreate, VideoResponse, VideoUpdate, VideoFeedResponse
 from app.database import engine
 from app.services.video_like_service import (
     create_like,
@@ -9,7 +8,14 @@ from app.services.video_like_service import (
     has_user_liked,
     delete_like,
 )
-from app.schemas import VideoCreate, VideoResponse, VideoUpdate, VideoLikeResponse
+from app.services.cloudinary_service import upload_video
+from app.schemas import (
+    VideoCreate,
+    VideoResponse,
+    VideoUpdate,
+    VideoFeedResponse,
+    VideoLikeResponse,
+)
 
 
 router = APIRouter()
@@ -17,17 +23,22 @@ router = APIRouter()
 
 @router.post("/videos", response_model=VideoResponse)
 def create_video_route(
-    video: VideoCreate,
+    title: str = Form(...),
+    description: str | None = Form(None),
+    file: UploadFile = File(...),
     current_user_id: int = Depends(get_current_user_id)
 ):
+    result = upload_video(file.file)
+    
     with engine.begin() as connection:
         return create_video(
             connection,
             current_user_id,
-            video.title,
-            video.description,
-            video.video_url,
-            video.duration
+            title,
+            description,
+            result["secure_url"],
+            result["public_id"],
+            int(result["duration"])
         )
 
 
@@ -225,3 +236,5 @@ def delete_video_route(
 def get_videos_by_user_route(user_id: int):
     with engine.connect() as connection:
         return get_videos_by_user(connection, user_id)
+
+
