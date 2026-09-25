@@ -148,6 +148,7 @@ def update_video(
     title: str,
     description: str | None,
     video_url: str,
+    cloudinary_public_id: str | None,
     duration: int,
 ):
     video = connection.execute(
@@ -161,7 +162,9 @@ def update_video(
 
     if video.user_id != user_id:
         return "forbidden"
-
+    
+    old_cloudinary_public_id = video.cloudinary_public_id
+    
     result = connection.execute(
         Video.__table__
         .update()
@@ -170,13 +173,17 @@ def update_video(
             title=title,
             description=description,
             video_url=video_url,
+            cloudinary_public_id=cloudinary_public_id,
             duration=duration,
         )
         .returning(Video.__table__)
     )
 
     updated_video = result.fetchone()
-
+    
+    if old_cloudinary_public_id:
+        delete_cloudinary_video(old_cloudinary_public_id)
+    
     return dict(updated_video._mapping)
 
 

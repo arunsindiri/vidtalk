@@ -188,18 +188,23 @@ def get_video_route(video_id: int):
 @router.put("/videos/{video_id}", response_model=VideoResponse)
 def update_video_route(
     video_id: int,
-    video: VideoUpdate,
+    title: str = Form(...),
+    description: str | None = Form(None),
+    file: UploadFile = File(...),
     current_user_id: int = Depends(get_current_user_id)
 ):
+    result = upload_video(file.file)
+
     with engine.begin() as connection:
         updated_video = update_video(
             connection,
             video_id,
             current_user_id,
-            video.title,
-            video.description,
-            video.video_url,
-            video.duration
+            title,
+            description,
+            result["secure_url"],
+            result["public_id"],
+            int(result["duration"])
         )
 
     if updated_video is None:
