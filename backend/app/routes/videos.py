@@ -24,7 +24,13 @@ def create_video_route(
     description: str | None = Form(None),
     file: UploadFile = File(...),
     current_user_id: int = Depends(get_current_user_id)
-):
+):    
+    if file.content_type != "video/mp4":
+        raise HTTPException(
+            status_code=400,
+            detail="Only MP4 videos are allowed"
+        )
+
     result = upload_video(file.file)
     
     with engine.begin() as connection:
@@ -190,6 +196,13 @@ def update_video_route(
     file: UploadFile = File(...),
     current_user_id: int = Depends(get_current_user_id)
 ):
+
+    if file.content_type != "video/mp4":
+        raise HTTPException(
+            status_code=400,
+            detail="Only MP4 videos are allowed"
+        )
+
     result = upload_video(file.file)
 
     with engine.begin() as connection:
