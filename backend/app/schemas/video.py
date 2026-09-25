@@ -2,13 +2,6 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class VideoCreate(BaseModel):
-    title: str
-    description: str | None = None
-    video_url: str
-    duration: int
-
-
 class VideoResponse(BaseModel):
     id: int
     user_id: int
@@ -18,13 +11,6 @@ class VideoResponse(BaseModel):
     duration: int
     created_at: datetime
     
-
-class VideoUpdate(BaseModel):
-    title: str
-    description: str | None = None
-    video_url: str
-    duration: int
-
 
 class VideoFeedResponse(VideoResponse):
     like_count: int

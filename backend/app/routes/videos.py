@@ -10,13 +10,10 @@ from app.services.video_like_service import (
 )
 from app.services.cloudinary_service import upload_video
 from app.schemas import (
-    VideoCreate,
     VideoResponse,
-    VideoUpdate,
     VideoFeedResponse,
     VideoLikeResponse,
 )
-
 
 router = APIRouter()
 
