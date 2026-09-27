@@ -11,6 +11,7 @@ def create_comment(
     video_id: int,
     text: str | None,
     video_url: str | None,
+    cloudinary_public_id: str | None,
     timestamp: int | None,
     parent_comment_id: int | None,
 ):
@@ -44,6 +45,7 @@ def create_comment(
             video_id=video_id,
             text=text,
             video_url=video_url,
+            cloudinary_public_id=cloudinary_public_id,
             timestamp=timestamp,
             parent_comment_id=parent_comment_id,
             created_at=datetime.now(),

@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from app.auth.dependencies import get_current_user_id
-
+from app.models.video import Video
 from app.database import engine
 from app.schemas import (
     CommentCreate,
@@ -32,6 +32,13 @@ from app.services.comment_reaction_service import (
     delete_reaction,
     add_reaction_data_to_tree,
 )
+import tempfile
+from app.services.video_processing_service import (
+    get_video_duration,
+    get_file_size_mb,
+    delete_temp_file,
+)
+from app.services.cloudinary_service import upload_video
 
 router = APIRouter()
 
@@ -48,6 +55,7 @@ def create_comment_route(
             comment.video_id,
             comment.text,
             comment.video_url,
+            None,
             comment.timestamp,
             comment.parent_comment_id
         )
@@ -59,6 +67,96 @@ def create_comment_route(
         )
 
     return created_comment
+
+
+@router.post("/comments/video", response_model=CommentResponse)
+def create_video_comment_route(
+    video_id: int,
+    video_file: UploadFile = File(...),
+    timestamp: int | None = None,
+    current_user_id: int = Depends(get_current_user_id),
+):
+    if video_file.content_type != "video/mp4":
+        raise HTTPException(
+            status_code=400,
+            detail="Only MP4 video files are allowed"
+        )
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+        temp_file.write(video_file.file.read())
+        temp_file_path = temp_file.name
+
+    try:
+        duration = get_video_duration(temp_file_path)
+
+        if duration > 180:
+            raise HTTPException(
+                status_code=400,
+                detail="Video comment cannot be longer than 3 minutes"
+            )
+
+        file_size_mb = get_file_size_mb(temp_file_path)
+
+        if file_size_mb > 50:
+            raise HTTPException(
+                status_code=400,
+                detail="Video comment file cannot be larger than 50 MB"
+            )
+
+        with engine.connect() as connection:
+            video = connection.execute(
+                Video.__table__
+                .select()
+                .where(Video.id == video_id)
+            ).fetchone()
+        
+            if video is None:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Video not found"
+                )
+        
+            if timestamp is not None and (
+                timestamp < 0 or timestamp > video.duration
+            ):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid timestamp"
+                )
+
+        cloudinary_result = upload_video(temp_file_path)
+
+        if not cloudinary_result:
+            raise HTTPException(
+                status_code=500,
+                detail="Video upload failed"
+            )
+
+        video_url = cloudinary_result["secure_url"]
+        cloudinary_public_id = cloudinary_result["public_id"]
+
+        with engine.begin() as connection:
+            created_comment = create_comment(
+                connection,
+                current_user_id,
+                video_id,
+                None,
+                video_url,
+                cloudinary_public_id,
+                timestamp,
+                None
+            )
+
+        if created_comment is None:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid video or timestamp"
+            )
+
+        return created_comment
+
+    finally:
+        delete_temp_file(temp_file_path)
 
 
 @router.get("/videos/{video_id}/comments", response_model=list[CommentWithReactionResponse])

@@ -10,6 +10,7 @@ class Comment(Base):
     video_id = Column(Integer, ForeignKey("videos.id"), nullable=False)
     text = Column(String, nullable=True)
     video_url = Column(String, nullable=True)
+    cloudinary_public_id = Column(String, nullable=True)
     timestamp = Column(Integer, nullable=True)
     parent_comment_id = Column(Integer, ForeignKey("comments.id"), nullable=True)
     created_at = Column(DateTime, nullable=False)
