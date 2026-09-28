@@ -15,6 +15,26 @@ def create_user(connection: Connection, name: str):
         "name": name
     }
 
+def create_google_user(
+    connection: Connection,
+    name: str,
+    google_id: str
+):
+    result = connection.execute(
+        User.__table__.insert().values(
+            name=name,
+            google_id=google_id
+        )
+    )
+
+    user_id = result.inserted_primary_key[0]
+
+    return {
+        "id": user_id,
+        "name": name,
+        "google_id": google_id
+    }
+
 def get_users(connection: Connection):
     result = connection.execute(
         User.__table__.select()
@@ -29,6 +49,24 @@ def get_users(connection: Connection):
         })
 
     return users
+
+def get_user_by_google_id(connection: Connection, google_id: str):
+    result = connection.execute(
+        User.__table__
+        .select()
+        .where(User.google_id == google_id)
+    )
+
+    user = result.fetchone()
+
+    if user is None:
+        return None
+
+    return {
+        "id": user.id,
+        "name": user.name,
+        "google_id": user.google_id
+    }
 
 def get_user(connection: Connection, user_id: int):
     result = connection.execute(

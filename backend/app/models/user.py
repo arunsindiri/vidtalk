@@ -7,3 +7,4 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
+    google_id = Column(String, unique=True, nullable=True)
